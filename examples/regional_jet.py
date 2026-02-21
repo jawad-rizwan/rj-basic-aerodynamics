@@ -29,66 +29,66 @@ from aero.drag_polar import DragPolar
 
 
 # =============================================================================
-#  AIRCRAFT GEOMETRY — CRJ700-class regional jet
-#  All values approximate; update with your actual design data.
+#  AIRCRAFT GEOMETRY — CRJ700-class regional jet (PLACEHOLDER DATA)
+#  Replace every value marked *** UPDATE *** with your actual design geometry.
 # =============================================================================
 
 # --- Wing ---
-S_ref = 520.0         # ft^2, wing reference area (trapezoidal)
-AR = 7.8              # aspect ratio
+S_ref = 520.0         # ft^2, wing reference area (trapezoidal)       *** UPDATE ***
+AR = 7.8              # aspect ratio                                  *** UPDATE ***
 b = np.sqrt(AR * S_ref)  # span (ft)
 MAC = S_ref / b       # mean aerodynamic chord approximation (ft)
-taper = 0.30          # taper ratio
-t_c_wing = 0.11       # thickness-to-chord ratio
-x_c_max_wing = 0.37   # chordwise location of max thickness (supercritical)
-sweep_qc_deg = 26.0   # quarter-chord sweep (deg)
+taper = 0.30          # taper ratio                                   *** UPDATE ***
+t_c_wing = 0.11       # thickness-to-chord ratio                      *** UPDATE ***
+x_c_max_wing = 0.37   # chordwise location of max thickness           *** UPDATE ***
+sweep_qc_deg = 26.0   # quarter-chord sweep (deg)                     *** UPDATE ***
 sweep_qc_rad = np.radians(sweep_qc_deg)
-sweep_le_deg = 29.0   # leading-edge sweep (deg)
+sweep_le_deg = 29.0   # leading-edge sweep (deg)                      *** UPDATE ***
 sweep_le_rad = np.radians(sweep_le_deg)
 # Approximate max-thickness sweep from quarter-chord sweep
-sweep_mt_deg = 23.0   # max-thickness line sweep (deg)
+sweep_mt_deg = 23.0   # max-thickness line sweep (deg)                *** UPDATE ***
 sweep_mt_rad = np.radians(sweep_mt_deg)
-S_exposed = 460.0     # ft^2, exposed planform (reference minus fuselage cover)
-winglet_h = 3.5       # ft, winglet height
+S_exposed = 460.0     # ft^2, exposed planform (minus fuselage cover) *** UPDATE ***
+winglet_h = 3.5       # ft, winglet height                            *** UPDATE ***
 
 # --- Fuselage ---
-fuse_length = 106.0   # ft, total fuselage length
-fuse_d = 8.83         # ft, equivalent diameter (CRJ700 ~8'10" external)
+fuse_length = 106.0   # ft, total fuselage length                     *** UPDATE ***
+fuse_d = 8.83         # ft, equivalent diameter                       *** UPDATE ***
 fuse_Amax = np.pi / 4 * fuse_d**2  # ft^2, max cross-section
 
 # --- Horizontal tail ---
-S_htail = 120.0       # ft^2, htail reference area
-S_htail_exposed = 108.0
-MAC_htail = 5.5       # ft
-t_c_htail = 0.09
-x_c_max_htail = 0.35
-sweep_mt_htail_rad = np.radians(28.0)
+S_htail = 120.0       # ft^2, htail reference area                    *** UPDATE ***
+S_htail_exposed = 108.0  # ft^2                                       *** UPDATE ***
+MAC_htail = 5.5       # ft                                            *** UPDATE ***
+t_c_htail = 0.09      #                                               *** UPDATE ***
+x_c_max_htail = 0.35  #                                               *** UPDATE ***
+sweep_mt_htail_rad = np.radians(28.0)  # deg                          *** UPDATE ***
 
 # --- Vertical tail ---
-S_vtail = 100.0       # ft^2
-S_vtail_exposed = 95.0
-MAC_vtail = 7.0       # ft
-t_c_vtail = 0.09
-x_c_max_vtail = 0.35
-sweep_mt_vtail_rad = np.radians(35.0)
+S_vtail = 100.0       # ft^2                                          *** UPDATE ***
+S_vtail_exposed = 95.0  # ft^2                                        *** UPDATE ***
+MAC_vtail = 7.0       # ft                                            *** UPDATE ***
+t_c_vtail = 0.09      #                                               *** UPDATE ***
+x_c_max_vtail = 0.35  #                                               *** UPDATE ***
+sweep_mt_vtail_rad = np.radians(35.0)  # deg                          *** UPDATE ***
 
 # --- Nacelles (x2, CF34-8C5 class) ---
-nacelle_length = 10.5  # ft, per nacelle
-nacelle_d = 4.2        # ft, diameter
-n_nacelles = 2
+nacelle_length = 10.5  # ft, per nacelle                              *** UPDATE ***
+nacelle_d = 4.2        # ft, diameter                                 *** UPDATE ***
+n_nacelles = 2         #                                              *** UPDATE ***
 
 # --- Flight condition ---
-cruise_mach = 0.78
-cruise_alt = 41000.0   # ft
+cruise_mach = 0.78     #                                              *** UPDATE ***
+cruise_alt = 41000.0   # ft                                           *** UPDATE ***
 atm = isa_properties(cruise_alt)
 V_cruise = cruise_mach * atm["a"]  # ft/s
 
 # --- Airfoil data ---
-cl_max_airfoil = 1.6   # 2D airfoil CLmax (supercritical, ~Re 10M)
+cl_max_airfoil = 1.6   # 2D airfoil CLmax (supercritical, ~Re 10M)   *** UPDATE ***
 
 # --- Surface finish ---
-k_metal = 1.33e-5      # ft, production sheet metal (Raymer Table 12.5)
-k_composite = 0.50e-5  # ft, polished/smooth composite
+k_metal = 1.33e-5      # ft, production sheet metal (Raymer Table 12.5)  *** UPDATE ***
+k_composite = 0.50e-5  # ft, polished/smooth composite                  *** UPDATE ***
 
 # =============================================================================
 #  1. LIFT-CURVE SLOPE
@@ -173,17 +173,17 @@ print(f"  V-tail (Eq. 12.30+)  = {FF_vtail:.4f}")
 print(f"  Nacelle (Eq. 12.32)  = {FF_nac:.4f}")
 
 # Interference factors Q — Raymer Table 12.6
-Q_wing = 1.05    # high/mid wing, well-filleted
-Q_fuse = 1.00    # fuselage relative to other components
-Q_htail = 1.05   # conventional tail group
-Q_vtail = 1.05   # conventional tail group
-Q_nac = 1.30     # nacelle ~1 diameter away from fuselage
+Q_wing = 1.05    # high/mid wing, well-filleted                      *** UPDATE ***
+Q_fuse = 1.00    # fuselage                                          *** UPDATE ***
+Q_htail = 1.05   # conventional tail group                           *** UPDATE ***
+Q_vtail = 1.05   # conventional tail group                           *** UPDATE ***
+Q_nac = 1.30     # nacelle ~1 diameter away from fuselage            *** UPDATE ***
 
 # Laminar flow percentages — Raymer Table 12.4 (civil jet, classic metal)
-lam_wing = 0.10
-lam_fuse = 0.05
-lam_tail = 0.05
-lam_nac = 0.0
+lam_wing = 0.10  #                                                   *** UPDATE ***
+lam_fuse = 0.05  #                                                   *** UPDATE ***
+lam_tail = 0.05  #                                                   *** UPDATE ***
+lam_nac = 0.0    #                                                   *** UPDATE ***
 
 # Build component list for Eq. 12.24
 components = [
@@ -202,7 +202,7 @@ components = [
 ]
 
 # Leakage & protuberance — Raymer Table 12.9: 2-5% for jet transports
-leak_pct = 0.03
+leak_pct = 0.03       #                                               *** UPDATE ***
 
 result = cd0_component_buildup(
     components, S_ref, cruise_mach, cruise_alt,
@@ -231,7 +231,7 @@ e = oswald_e(AR_eff, sweep_le_deg)
 K = k_factor(AR_eff, e)
 
 # Leading-edge suction method — Raymer Eq. 12.57
-S_suction = 0.90  # typical for well-designed wing at design CL
+S_suction = 0.90  # typical for well-designed wing at design CL      *** UPDATE ***
 K_les = k_factor_leading_edge_suction(AR_eff, CLa, S_suction)
 
 # NOTE: Raymer Eqs. 12.48/12.49 are known to be conservative.
@@ -259,7 +259,7 @@ ld_max, cl_ldmax = polar.ld_max()
 ld_max_oswald, _ = polar_oswald.ld_max()
 
 # Cruise CL estimate (need weight estimate)
-W_cruise_approx = 65000.0  # lbs, mid-mission weight guess
+W_cruise_approx = 65000.0  # lbs, mid-mission weight guess            *** UPDATE ***
 q_cruise = dynamic_pressure(cruise_mach, cruise_alt)
 cl_cruise = polar.cl_for_cruise(W_cruise_approx, q_cruise, S_ref)
 ld_cruise = polar.ld(cl_cruise)
@@ -282,14 +282,14 @@ cl_max = cl_max_clean(cl_max_airfoil, sweep_qc_rad)
 
 # With trailing-edge flaps (slotted Fowler, c'/c ≈ 1.25)
 # Raymer Table 12.2: Fowler ΔCl_max ≈ 1.3 * 1.25 = 1.625
-delta_cl_te = 1.3 * 1.25   # Fowler flap
-s_flapped_ratio = 0.70     # ~70% of wing span has flaps
-sweep_hl_rad = np.radians(20.0)  # flap hinge line sweep
+delta_cl_te = 1.3 * 1.25   # Fowler flap                             *** UPDATE ***
+s_flapped_ratio = 0.70     # ~70% of wing span has flaps              *** UPDATE ***
+sweep_hl_rad = np.radians(20.0)  # flap hinge line sweep              *** UPDATE ***
 
 # With leading-edge slat
 # Raymer Table 12.2: slat ΔCl_max ≈ 0.4 * c'/c
-delta_cl_le = 0.4 * 1.10   # slat with c'/c ≈ 1.10
-s_slat_ratio = 0.75
+delta_cl_le = 0.4 * 1.10   # slat with c'/c ≈ 1.10                   *** UPDATE ***
+s_slat_ratio = 0.75        #                                          *** UPDATE ***
 
 cl_max_to = cl_max_flaps(cl_max, delta_cl_te * 0.70, s_flapped_ratio, sweep_hl_rad,
                           delta_cl_max_le=0.0)  # no slats for takeoff typically
