@@ -24,14 +24,12 @@ def mdd_wing(t_c, sweep_qc_deg, cl_design=0.0, supercritical=False):
     cl_design : float
         Design lift coefficient.
     supercritical : bool
-        If True, multiply t/c by 0.6 per Raymer's recommendation.
+        If True, use kA = 0.95 instead of 0.87.
 
     Returns
     -------
     float : M_DD (Boeing definition, ~20 counts drag rise)
     """
-    tc_eff = t_c * 0.6 if supercritical else t_c
-
     # Approximate M_DD at zero lift from Raymer Fig. 12.29
     # Based on curve fits for various t/c vs sweep
     sweep_rad = np.radians(sweep_qc_deg)
@@ -40,8 +38,9 @@ def mdd_wing(t_c, sweep_qc_deg, cl_design=0.0, supercritical=False):
     # Korn equation approximation (widely used, consistent with Fig 12.29)
     # M_DD ≈ (kA / cos Λ) - (t/c) / cos^2(Λ) - CL / (10 * cos^3(Λ))
     # kA ≈ 0.87 for conventional airfoils, 0.95 for supercritical
+    # The supercritical benefit is captured entirely by kA; t/c is NOT reduced.
     ka = 0.95 if supercritical else 0.87
-    mdd = ka / cos_sweep - tc_eff / cos_sweep**2 - cl_design / (10.0 * cos_sweep**3)
+    mdd = ka / cos_sweep - t_c / cos_sweep**2 - cl_design / (10.0 * cos_sweep**3)
 
     return mdd
 

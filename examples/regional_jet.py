@@ -63,21 +63,21 @@ VARIANTS = {
     "100-seat": {"fuse_length": 108.2,  "MTOW": 81624.0},
 }
 
-# --- Horizontal tail (T-tail, NASA SC(2)-0012) ---
+# --- Horizontal tail (T-tail) ---
 S_htail = 190.58      # ft^2, htail reference area
 S_htail_exposed = 174.8  # ft^2 (exposed span 25.76 ft, minus structural box)
 MAC_htail = 7.38      # ft
-t_c_htail = 0.12      # NASA SC(2)-0012, 12% thick
-x_c_max_htail = 0.37  # max thickness at 37% chord
-sweep_mt_htail_rad = np.radians(23.8)  # max-thickness sweep (deg)
+t_c_htail = 0.12      # *** UPDATE *** (airfoil TBD, using 12% placeholder)
+x_c_max_htail = 0.37  # *** UPDATE *** (airfoil TBD, using 37% placeholder)
+sweep_mt_htail_rad = np.radians(23.8)  # *** UPDATE *** max-thickness sweep — recompute when airfoil chosen
 
-# --- Vertical tail (enhanced area, NASA SC(2)-0012) ---
+# --- Vertical tail (enhanced area) ---
 S_vtail = 146.35      # ft^2 (enhanced area)
 S_vtail_exposed = 124.1  # ft^2 (exposed span 13.73 ft)
 MAC_vtail = 11.03     # ft
-t_c_vtail = 0.12      # NASA SC(2)-0012, 12% thick
-x_c_max_vtail = 0.37  # max thickness at 37% chord
-sweep_mt_vtail_rad = np.radians(38.5)  # max-thickness sweep (deg)
+t_c_vtail = 0.12      # *** UPDATE *** (airfoil TBD, using 12% placeholder)
+x_c_max_vtail = 0.37  # *** UPDATE *** (airfoil TBD, using 37% placeholder)
+sweep_mt_vtail_rad = np.radians(38.5)  # *** UPDATE *** max-thickness sweep — recompute when airfoil chosen
 
 # --- Nacelles (x2) ---
 nacelle_length = 13.46  # ft, per nacelle
@@ -91,7 +91,7 @@ atm = isa_properties(cruise_alt)
 V_cruise = cruise_mach * atm["a"]  # ft/s
 
 # --- Airfoil data ---
-cl_max_airfoil = 2.22  # 2D airfoil CLmax (NASA SC(3)-0712B)
+cl_max_airfoil = 2.22  # *** UPDATE *** 2D airfoil CLmax — verify from test data (typical SC ~1.6-1.8)
 
 # --- Surface finish ---
 k_metal = 1.33e-5      # ft, production sheet metal (Raymer Table 12.5)
