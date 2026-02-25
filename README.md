@@ -1,13 +1,16 @@
 # rj-basic-aerodynamics
 
-Conceptual-level aerodynamic analysis for regional jet design, implementing
-the methods from **Raymer, _Aircraft Design: A Conceptual Approach_ (7th Ed.),
-Chapter 12 — Aerodynamics**.
+Conceptual-level aerodynamic analysis for a high-wing regional jet design
+(AN-148/AVRO RJ class), implementing the methods from **Raymer, _Aircraft
+Design: A Conceptual Approach_ (7th Ed.), Chapter 12 — Aerodynamics**.
 
-These scripts compute CD0, Oswald span efficiency, induced-drag K factor,
+The script computes CD0, Oswald span efficiency, induced-drag K factor,
 lift-curve slope, CLmax, and drag-divergence Mach number using the component
-buildup method. The outputs are intended to feed into Chapter 6 refined mission
-sizing (see [`rj-mission-sizing`](https://github.com/jawad-rizwan/rj-mission-sizing)).
+buildup method. Both 76-seat and 100-seat fuselage variants are analysed
+(shared wing/tail/nacelle geometry, different fuselage lengths).
+
+Outputs are intended to feed into Chapter 6 refined mission sizing
+(see [`rj-mission-sizing`](https://github.com/jawad-rizwan/rj-mission-sizing)).
 
 ## Repository Structure
 
@@ -23,7 +26,7 @@ rj-basic-aerodynamics/
 │   ├── wave_drag.py         # MDD, wave drag (Eq. 12.42–12.46)
 │   └── drag_polar.py        # DragPolar class (Eq. 12.4–12.5)
 ├── examples/
-│   └── regional_jet.py      # Full example with CRJ700-class placeholder data
+│   └── regional_jet.py      # Full analysis for both fuselage variants
 └── requirements.txt
 ```
 
@@ -34,28 +37,14 @@ pip install -r requirements.txt
 python3 examples/regional_jet.py
 ```
 
-## Using Your Own Aircraft Data
+## Aircraft Configuration
 
-The example script (`examples/regional_jet.py`) is pre-loaded with CRJ700-class
-geometry as placeholder data. Every value you need to replace is marked with
-`*** UPDATE ***` in the comments. Search for that tag to find all of them:
-
-```bash
-grep "UPDATE" examples/regional_jet.py
-```
-
-The placeholders cover:
-- **Wing**: S_ref, AR, taper, t/c, sweep angles, S_exposed, winglet height
-- **Fuselage**: length, diameter
-- **Horizontal tail**: S, S_exposed, MAC, t/c, x/c_max, sweep
-- **Vertical tail**: S, S_exposed, MAC, t/c, x/c_max, sweep
-- **Nacelles**: length, diameter, count
-- **Flight condition**: cruise Mach, cruise altitude
-- **Airfoil data**: 2D CLmax
-- **Surface finish**: roughness height k
-- **Tuning parameters**: interference factors Q, laminar %, leakage %, LE suction
-- **High-lift devices**: flap/slat deltas, flapped span ratios, hinge-line sweep
-- **Weight**: mid-mission cruise weight estimate
+- **Wing**: S_ref = 792.47 ft², AR = 7.8, taper = 0.33, NASA SC(3)-0712B airfoil (12% t/c), 26° LE sweep, no winglets (anhedral tips)
+- **Fuselage**: 9.83 ft diameter, 96.44 ft (76-seat) / 108.2 ft (100-seat)
+- **Horizontal tail**: T-tail, S = 190.58 ft², NASA SC(2)-0012 airfoil
+- **Vertical tail**: S = 146.35 ft² (enhanced), NASA SC(2)-0012 airfoil
+- **Nacelles**: 13.46 ft length, 6.17 ft diameter, x2
+- **Cruise**: Mach 0.78 at 41,000 ft
 
 ## Module Reference
 
@@ -73,19 +62,21 @@ includes the Raymer equation number in a comment.
 | `wave_drag.py` | `mdd_wing`, `wave_drag_sears_haack` | Eq. 12.42–12.46 |
 | `drag_polar.py` | `DragPolar` class | Eq. 12.4–12.5 |
 
-## Sample Output (CRJ700-class placeholders)
+## Sample Output
 
-| Parameter | Value | Notes |
-|-----------|-------|-------|
-| CD0 | 0.02541 | Component buildup (Eq. 12.24) |
-| e (Oswald) | 0.543 | Eq. 12.48/49 — conservative |
-| e (LE suction) | 0.730 | Eq. 12.57 — recommended |
-| K (LE suction) | 0.0502 | Recommended for sizing |
-| (L/D)_max | 14.0 | With LE suction K |
-| CLa | 5.88 /rad | At cruise Mach |
-| CLmax clean | 1.294 | Eq. 12.15 |
-| CLmax landing | 2.535 | With flaps + slats |
-| MDD | 0.867 | Korn equation (Eq. 12.46) |
+| Parameter | 76-seat | 100-seat | Notes |
+|-----------|---------|----------|-------|
+| CD0 | 0.02113 | 0.02185 | Component buildup (Eq. 12.24) |
+| e (Oswald) | 0.639 | 0.639 | Eq. 12.48/49 — conservative |
+| e (LE suction) | 0.753 | 0.753 | Eq. 12.57 — recommended |
+| K (LE suction) | 0.0542 | 0.0542 | Recommended for sizing |
+| (L/D)_max | 14.78 | 14.53 | With LE suction K |
+| L/D cruise | 14.40 | 14.39 | At cruise Mach / altitude |
+| CLa | 5.73 /rad | 5.73 /rad | At cruise Mach |
+| CLmax clean | 1.841 | 1.841 | Eq. 12.15 |
+| CLmax takeoff | 2.514 | 2.514 | Fowler flaps, no slats |
+| CLmax landing | 3.082 | 3.082 | Fowler flaps + slats |
+| MDD | 0.883 | 0.876 | Korn equation (Eq. 12.46) |
 
 ## Notes
 
