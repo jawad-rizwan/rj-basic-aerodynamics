@@ -328,6 +328,7 @@ for variant_name, vdata in VARIANTS.items():
     print(f"  K (Oswald)   = {K:.5f}")
     print(f"  K (LE suct.) = {K_les:.5f}  (recommended)")
     print(f"  (L/D)_max    = {ld_max:.2f}  (LE suction K)")
+    print(f"  CL_cruise    = {cl_cruise:.4f}")
     print(f"  CL_max clean = {cl_max:.3f}")
     print(f"  CL_max T/O   = {cl_max_to:.3f}")
     print(f"  CL_max Land  = {cl_max_land:.3f}")

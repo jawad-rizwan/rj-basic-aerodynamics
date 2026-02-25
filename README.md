@@ -72,11 +72,12 @@ includes the Raymer equation number in a comment.
 | K (LE suction) | 0.0542 | 0.0542 | Recommended for sizing |
 | (L/D)_max | 14.78 | 14.53 | With LE suction K |
 | L/D cruise | 14.40 | 14.39 | At cruise Mach / altitude |
+| CL cruise | 0.4974 | 0.5507 | W_cruise / (q * S_ref) |
 | CLa | 5.73 /rad | 5.73 /rad | At cruise Mach |
 | CLmax clean | 1.841 | 1.841 | Eq. 12.15 |
 | CLmax takeoff | 2.514 | 2.514 | Fowler flaps, no slats |
 | CLmax landing | 3.082 | 3.082 | Fowler flaps + slats |
-| MDD | 0.883 | 0.876 | Korn equation (Eq. 12.46) |
+| MDD | 0.826 | 0.819 | Korn equation (Eq. 12.46) |
 
 ## Notes
 
