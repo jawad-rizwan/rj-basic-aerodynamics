@@ -62,7 +62,7 @@ AIRCRAFT = {
     "k_surface": 1.33e-5,         # ft, production sheet metal (Raymer Table 12.5)
 
     # --- Interference factors Q — Raymer Table 12.6 ---
-    "Q_wing": 1.05,               # high/mid wing, well-filleted
+    "Q_wing": 1.00,               # high wing, well-filleted (Raymer Table 12.6)
     "Q_fuse": 1.00,               # fuselage
     "Q_htail": 1.05,              # conventional tail group
     "Q_vtail": 1.05,              # conventional tail group
