@@ -3,11 +3,11 @@ Regional Jet Aerodynamic Analysis — high-wing regional jet
 Using Raymer Chapter 12 methods.
 
 This script computes CD0, Oswald e, K, CLmax, L/D, and MDD
-for a high-wing regional jet (AN-148/AVRO RJ class) using the
-component buildup method.
+for a high-wing regional jet using the component buildup method.
 
-Both 76-seat and 100-seat fuselage variants are analysed.
-Wing, tail, and nacelle geometry are shared between variants.
+Aircraft data is loaded from dedicated files in the data/ directory:
+  - data/ZRJ70.py   (76-seat variant)
+  - data/ZRJ100.py  (100-seat variant)
 
 Outputs are intended to feed into Chapter 6 refined sizing
 (rj-mission-sizing).
@@ -15,6 +15,7 @@ Outputs are intended to feed into Chapter 6 refined sizing
 
 import sys
 import os
+import importlib
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -32,202 +33,131 @@ from aero.wave_drag import mdd_wing
 from aero.drag_polar import DragPolar
 
 
-# =============================================================================
-#  AIRCRAFT GEOMETRY — high-wing regional jet (from sizing spreadsheet)
-# =============================================================================
+def analyse(ac):
+    """Run full Raymer Ch.12 aerodynamic analysis for one aircraft configuration."""
 
-# --- Wing (shared between 76-seat and 100-seat) ---
-S_ref = 792.47        # ft^2, wing reference area (trapezoidal)
-AR = 7.8              # aspect ratio
-b = 78.62             # ft, wing span (from spreadsheet)
-MAC = 10.93           # ft, mean aerodynamic chord (from spreadsheet)
-taper = 0.33          # taper ratio (from AVRO RJ)
-t_c_wing = 0.12       # thickness-to-chord ratio (NASA SC(3)-0712B, 12%)
-x_c_max_wing = 0.37   # chordwise location of max thickness
-sweep_qc_deg = 22.9   # quarter-chord sweep (deg)
-sweep_qc_rad = np.radians(sweep_qc_deg)
-sweep_le_deg = 26.0   # leading-edge sweep (deg)
-sweep_le_rad = np.radians(sweep_le_deg)
-# Max-thickness sweep computed: tan(Λ_LE) - (4/AR)(x_c_max)(1-λ)/(1+λ)
-sweep_mt_deg = 21.4   # max-thickness line sweep (deg)
-sweep_mt_rad = np.radians(sweep_mt_deg)
-# S_exposed ≈ S_ref - fuse_d × avg_covered_chord
-S_exposed = 649.7     # ft^2, exposed planform (minus fuselage cover)
-winglet_h = 0.0       # ft, no winglets (high-wing with anhedral, AN-148/AVRO RJ style)
+    name = ac["name"]
 
-# --- Fuselage (variant-dependent) ---
-fuse_d = 9.83         # ft, max fuselage diameter
-fuse_Amax = np.pi / 4 * fuse_d**2  # ft^2, max cross-section
-VARIANTS = {
-    "76-seat":  {"fuse_length": 96.44,  "MTOW": 73723.0},
-    "100-seat": {"fuse_length": 108.2,  "MTOW": 81624.0},
-}
+    # --- Unpack geometry ---
+    S_ref        = ac["S_ref"]
+    AR           = ac["AR"]
+    b            = ac["b"]
+    MAC          = ac["MAC"]
+    t_c_wing     = ac["t_c_wing"]
+    x_c_max_wing = ac["x_c_max_wing"]
+    sweep_qc_rad = np.radians(ac["sweep_qc_deg"])
+    sweep_le_deg = ac["sweep_le_deg"]
+    sweep_mt_rad = np.radians(ac["sweep_mt_deg"])
+    S_exposed    = ac["S_exposed"]
+    winglet_h    = ac["winglet_h"]
 
-# --- Horizontal tail (T-tail) ---
-S_htail = 190.58      # ft^2, htail reference area
-S_htail_exposed = 174.8  # ft^2 (exposed span 25.76 ft, minus structural box)
-MAC_htail = 7.38      # ft
-t_c_htail = 0.12      # *** UPDATE *** (airfoil TBD, using 12% placeholder)
-x_c_max_htail = 0.37  # *** UPDATE *** (airfoil TBD, using 37% placeholder)
-sweep_mt_htail_rad = np.radians(23.8)  # *** UPDATE *** max-thickness sweep — recompute when airfoil chosen
+    fuse_d       = ac["fuse_d"]
+    fuse_length  = ac["fuse_length"]
+    MTOW         = ac["MTOW"]
+    W_cruise_approx = 0.85 * MTOW
 
-# --- Vertical tail (enhanced area) ---
-S_vtail = 146.35      # ft^2 (enhanced area)
-S_vtail_exposed = 124.1  # ft^2 (exposed span 13.73 ft)
-MAC_vtail = 11.03     # ft
-t_c_vtail = 0.12      # *** UPDATE *** (airfoil TBD, using 12% placeholder)
-x_c_max_vtail = 0.37  # *** UPDATE *** (airfoil TBD, using 37% placeholder)
-sweep_mt_vtail_rad = np.radians(38.5)  # *** UPDATE *** max-thickness sweep — recompute when airfoil chosen
+    S_htail_exposed = ac["S_htail_exposed"]
+    MAC_htail    = ac["MAC_htail"]
+    t_c_htail    = ac["t_c_htail"]
+    x_c_max_htail = ac["x_c_max_htail"]
+    sweep_mt_htail_rad = np.radians(ac["sweep_mt_htail_deg"])
 
-# --- Nacelles (x2) ---
-nacelle_length = 13.46  # ft, per nacelle
-nacelle_d = 6.17       # ft, diameter
-n_nacelles = 2
+    S_vtail_exposed = ac["S_vtail_exposed"]
+    MAC_vtail    = ac["MAC_vtail"]
+    t_c_vtail    = ac["t_c_vtail"]
+    x_c_max_vtail = ac["x_c_max_vtail"]
+    sweep_mt_vtail_rad = np.radians(ac["sweep_mt_vtail_deg"])
 
-# --- Flight condition ---
-cruise_mach = 0.78
-cruise_alt = 41000.0   # ft
-atm = isa_properties(cruise_alt)
-V_cruise = cruise_mach * atm["a"]  # ft/s
+    nacelle_length = ac["nacelle_length"]
+    nacelle_d    = ac["nacelle_d"]
+    n_nacelles   = ac["n_nacelles"]
 
-# --- Airfoil data ---
-cl_max_airfoil = 2.22  # *** UPDATE *** 2D airfoil CLmax — verify from test data (typical SC ~1.6-1.8)
+    cruise_mach  = ac["cruise_mach"]
+    cruise_alt   = ac["cruise_alt"]
+    atm          = isa_properties(cruise_alt)
+    V_cruise     = cruise_mach * atm["a"]
 
-# --- Surface finish ---
-k_metal = 1.33e-5      # ft, production sheet metal (Raymer Table 12.5)
-k_composite = 0.50e-5  # ft, polished/smooth composite
+    cl_max_airfoil = ac["cl_max_airfoil"]
+    k_surface    = ac["k_surface"]
 
-# =============================================================================
-#  1. LIFT-CURVE SLOPE (shared — independent of fuselage length)
-# =============================================================================
-print("=" * 65)
-print("  REGIONAL JET AERODYNAMIC ANALYSIS (Raymer Ch.12 Methods)")
-print("=" * 65)
+    Q_wing       = ac["Q_wing"]
+    Q_fuse       = ac["Q_fuse"]
+    Q_htail      = ac["Q_htail"]
+    Q_vtail      = ac["Q_vtail"]
+    Q_nac        = ac["Q_nac"]
 
-# Effective aspect ratio with winglets — Raymer Eq. 12.11
-AR_eff = effective_aspect_ratio_winglet(AR, winglet_h, b)
+    lam_wing     = ac["lam_wing"]
+    lam_fuse     = ac["lam_fuse"]
+    lam_tail     = ac["lam_tail"]
+    lam_nac      = ac["lam_nac"]
+    leak_pct     = ac["leak_pct"]
+    S_suction    = ac["S_suction"]
 
-# Fuselage lift factor — Raymer Eq. 12.9
-F = fuselage_lift_factor(fuse_d, b)
-s_exp_ratio = S_exposed / S_ref
-# Clamp (S_exp/S_ref)*F to max 0.98 per Raymer recommendation
-sf_product = min(s_exp_ratio * F, 0.98)
+    delta_cl_te  = ac["delta_cl_te_factor"]
+    te_to_frac   = ac["te_flap_takeoff_fraction"]
+    s_flapped_ratio = ac["s_flapped_ratio"]
+    sweep_hl_rad = np.radians(ac["sweep_hl_deg"])
+    delta_cl_le  = ac["delta_cl_le_factor"]
+    s_slat_ratio = ac["s_slat_ratio"]
 
-# Subsonic lift-curve slope — Raymer Eq. 12.6
-# Use clamped (S_exp/S_ref)*F product per Raymer recommendation
-CLa = cl_alpha_subsonic(
-    A=AR_eff,
-    mach=cruise_mach,
-    sweep_max_t=sweep_mt_rad,
-    eta=0.95,  # Raymer Eq. 12.8
-    s_exposed_ratio=sf_product,  # clamped (S_exp/S_ref)*F
-    F=1.0,  # already folded into sf_product
-)
-
-print(f"\n--- LIFT ---")
-print(f"  Wing span              = {b:.1f} ft")
-print(f"  MAC                    = {MAC:.2f} ft")
-print(f"  AR (geometric)         = {AR:.1f}")
-print(f"  AR (effective, winglet) = {AR_eff:.2f}")
-print(f"  Fuselage lift factor F = {F:.3f}")
-print(f"  (S_exp/S_ref)*F        = {s_exp_ratio * F:.3f}")
-print(f"  CLa (cruise, M={cruise_mach})   = {CLa:.4f} /rad = {CLa * np.pi/180:.5f} /deg")
-
-# =============================================================================
-#  SHARED WETTED AREAS & FORM FACTORS (everything except fuselage)
-# =============================================================================
-
-# Wing: S_wet ≈ 2 * S_exposed * (1 + 0.25 * t/c) for finite thickness
-S_wet_wing = 2.0 * S_exposed * (1.0 + 0.25 * t_c_wing)
-
-# Horizontal tail
-S_wet_htail = 2.0 * S_htail_exposed * (1.0 + 0.25 * t_c_htail)
-
-# Vertical tail
-S_wet_vtail = 2.0 * S_vtail_exposed * (1.0 + 0.25 * t_c_vtail)
-
-# Nacelles (each)
-S_wet_nac = np.pi * nacelle_d * nacelle_length * 0.8  # ~80% due to pylon/cutout
-
-# Form factors (shared)
-FF_wing = ff_wing(x_c_max_wing, t_c_wing, cruise_mach, sweep_mt_rad)
-FF_htail = ff_tail_with_hinge(x_c_max_htail, t_c_htail, cruise_mach, sweep_mt_htail_rad)
-FF_vtail = ff_tail_with_hinge(x_c_max_vtail, t_c_vtail, cruise_mach, sweep_mt_vtail_rad)
-FF_nac = ff_nacelle(nacelle_length, nacelle_d)
-
-# Interference factors Q — Raymer Table 12.6
-Q_wing = 1.05    # high/mid wing, well-filleted
-Q_fuse = 1.00    # fuselage
-Q_htail = 1.05   # conventional tail group
-Q_vtail = 1.05   # conventional tail group
-Q_nac = 1.30     # nacelle ~1 diameter away from fuselage
-
-# Laminar flow percentages — Raymer Table 12.4 (civil jet, classic metal)
-lam_wing = 0.10
-lam_fuse = 0.05
-lam_tail = 0.05
-lam_nac = 0.0
-
-# Leakage & protuberance — Raymer Table 12.9: 2-5% for jet transports
-leak_pct = 0.03
-
-# Oswald efficiency & K (shared — independent of fuselage)
-e = oswald_e(AR_eff, sweep_le_deg)
-K = k_factor(AR_eff, e)
-
-# Leading-edge suction method — Raymer Eq. 12.57
-S_suction = 0.90  # typical for well-designed wing at design CL
-K_les = k_factor_leading_edge_suction(AR_eff, CLa, S_suction)
-e_from_les = 1.0 / (np.pi * AR_eff * K_les)
-
-# Maximum lift (shared — independent of fuselage)
-cl_max = cl_max_clean(cl_max_airfoil, sweep_qc_rad)
-
-# With trailing-edge flaps (slotted Fowler, c'/c ≈ 1.25)
-delta_cl_te = 1.3 * 1.25   # Fowler flap
-s_flapped_ratio = 0.70     # ~70% of wing span has flaps
-sweep_hl_rad = np.radians(20.0)  # flap hinge line sweep
-
-# With leading-edge slat
-delta_cl_le = 0.4 * 1.10   # slat with c'/c ≈ 1.10
-s_slat_ratio = 0.75
-
-cl_max_to = cl_max_flaps(cl_max, delta_cl_te * 0.70, s_flapped_ratio, sweep_hl_rad,
-                          delta_cl_max_le=0.0)  # no slats for takeoff typically
-
-cl_max_land = cl_max_flaps(cl_max, delta_cl_te, s_flapped_ratio, sweep_hl_rad,
-                            delta_cl_max_le=0.9 * delta_cl_le * s_slat_ratio * np.cos(sweep_hl_rad))
-
-q_cruise = dynamic_pressure(cruise_mach, cruise_alt)
-
-# =============================================================================
-#  LOOP OVER FUSELAGE VARIANTS
-# =============================================================================
-for variant_name, vdata in VARIANTS.items():
-    fuse_length = vdata["fuse_length"]
-    MTOW = vdata["MTOW"]
-    W_cruise_approx = 0.85 * MTOW  # mid-mission weight estimate
-
+    # =========================================================================
+    #  HEADER
+    # =========================================================================
     print(f"\n{'#'*65}")
-    print(f"  VARIANT: {variant_name}  (fuse = {fuse_length:.1f} ft, MTOW = {MTOW:.0f} lbs)")
+    print(f"  {name} — {ac['description']}")
+    print(f"  (fuse = {fuse_length:.1f} ft, MTOW = {MTOW:.0f} lbs)")
     print(f"{'#'*65}")
 
-    # --- Fuselage wetted area & form factor (variant-dependent) ---
+    # =========================================================================
+    #  1. LIFT-CURVE SLOPE
+    # =========================================================================
+    AR_eff = effective_aspect_ratio_winglet(AR, winglet_h, b)
+    F = fuselage_lift_factor(fuse_d, b)
+    s_exp_ratio = S_exposed / S_ref
+    sf_product = min(s_exp_ratio * F, 0.98)
+
+    CLa = cl_alpha_subsonic(
+        A=AR_eff, mach=cruise_mach, sweep_max_t=sweep_mt_rad,
+        eta=0.95, s_exposed_ratio=sf_product, F=1.0,
+    )
+
+    print(f"\n--- LIFT ---")
+    print(f"  Wing span              = {b:.1f} ft")
+    print(f"  MAC                    = {MAC:.2f} ft")
+    print(f"  AR (geometric)         = {AR:.1f}")
+    print(f"  AR (effective, winglet) = {AR_eff:.2f}")
+    print(f"  Fuselage lift factor F = {F:.3f}")
+    print(f"  (S_exp/S_ref)*F        = {s_exp_ratio * F:.3f}")
+    print(f"  CLa (cruise, M={cruise_mach})   = {CLa:.4f} /rad = {CLa * np.pi/180:.5f} /deg")
+
+    # =========================================================================
+    #  2. WETTED AREAS & FORM FACTORS
+    # =========================================================================
+    S_wet_wing  = 2.0 * S_exposed * (1.0 + 0.25 * t_c_wing)
+    S_wet_htail = 2.0 * S_htail_exposed * (1.0 + 0.25 * t_c_htail)
+    S_wet_vtail = 2.0 * S_vtail_exposed * (1.0 + 0.25 * t_c_vtail)
+    S_wet_nac   = np.pi * nacelle_d * nacelle_length * 0.8
+
     fuse_f = fuse_length / fuse_d
     S_wet_fuse = (np.pi * fuse_d * fuse_length
                   * (1.0 - 2.0/fuse_f)**(2.0/3.0)
                   * (1.0 + 1.0/fuse_f**2))
-    FF_fuse = ff_fuselage(fuse_length, fuse_d)
 
     S_wet_total = (S_wet_wing + S_wet_fuse + S_wet_htail
                    + S_wet_vtail + n_nacelles * S_wet_nac)
+
+    FF_wing  = ff_wing(x_c_max_wing, t_c_wing, cruise_mach, sweep_mt_rad)
+    FF_fuse  = ff_fuselage(fuse_length, fuse_d)
+    FF_htail = ff_tail_with_hinge(x_c_max_htail, t_c_htail, cruise_mach, sweep_mt_htail_rad)
+    FF_vtail = ff_tail_with_hinge(x_c_max_vtail, t_c_vtail, cruise_mach, sweep_mt_vtail_rad)
+    FF_nac   = ff_nacelle(nacelle_length, nacelle_d)
 
     print(f"\n--- WETTED AREAS ---")
     print(f"  Wing          = {S_wet_wing:.0f} ft^2")
     print(f"  Fuselage      = {S_wet_fuse:.0f} ft^2")
     print(f"  H-tail        = {S_wet_htail:.0f} ft^2")
     print(f"  V-tail        = {S_wet_vtail:.0f} ft^2")
-    print(f"  Nacelles (x2) = {n_nacelles * S_wet_nac:.0f} ft^2")
+    print(f"  Nacelles (x{n_nacelles}) = {n_nacelles * S_wet_nac:.0f} ft^2")
     print(f"  TOTAL         = {S_wet_total:.0f} ft^2")
     print(f"  S_wet / S_ref = {S_wet_total / S_ref:.2f}")
 
@@ -238,21 +168,24 @@ for variant_name, vdata in VARIANTS.items():
     print(f"  V-tail (Eq. 12.30+)  = {FF_vtail:.4f}")
     print(f"  Nacelle (Eq. 12.32)  = {FF_nac:.4f}")
 
-    # --- CD0 Component Buildup (Eq. 12.24) ---
+    # =========================================================================
+    #  3. CD0 COMPONENT BUILDUP (Eq. 12.24)
+    # =========================================================================
     components = [
         {"name": "Wing",       "s_wet": S_wet_wing,    "length": MAC,
-         "ff": FF_wing,  "Q": Q_wing,  "pct_laminar": lam_wing, "k": k_metal},
+         "ff": FF_wing,  "Q": Q_wing,  "pct_laminar": lam_wing, "k": k_surface},
         {"name": "Fuselage",   "s_wet": S_wet_fuse,    "length": fuse_length,
-         "ff": FF_fuse,  "Q": Q_fuse,  "pct_laminar": lam_fuse, "k": k_metal},
+         "ff": FF_fuse,  "Q": Q_fuse,  "pct_laminar": lam_fuse, "k": k_surface},
         {"name": "H-tail",     "s_wet": S_wet_htail,   "length": MAC_htail,
-         "ff": FF_htail, "Q": Q_htail, "pct_laminar": lam_tail, "k": k_metal},
+         "ff": FF_htail, "Q": Q_htail, "pct_laminar": lam_tail, "k": k_surface},
         {"name": "V-tail",     "s_wet": S_wet_vtail,   "length": MAC_vtail,
-         "ff": FF_vtail, "Q": Q_vtail, "pct_laminar": lam_tail, "k": k_metal},
-        {"name": "Nacelle L",  "s_wet": S_wet_nac,     "length": nacelle_length,
-         "ff": FF_nac,   "Q": Q_nac,   "pct_laminar": lam_nac,  "k": k_metal},
-        {"name": "Nacelle R",  "s_wet": S_wet_nac,     "length": nacelle_length,
-         "ff": FF_nac,   "Q": Q_nac,   "pct_laminar": lam_nac,  "k": k_metal},
+         "ff": FF_vtail, "Q": Q_vtail, "pct_laminar": lam_tail, "k": k_surface},
     ]
+    for i in range(n_nacelles):
+        side = "L" if i == 0 else "R"
+        components.append(
+            {"name": f"Nacelle {side}", "s_wet": S_wet_nac, "length": nacelle_length,
+             "ff": FF_nac, "Q": Q_nac, "pct_laminar": lam_nac, "k": k_surface})
 
     result = cd0_component_buildup(
         components, S_ref, cruise_mach, cruise_alt,
@@ -270,18 +203,26 @@ for variant_name, vdata in VARIANTS.items():
     print(f"  {'Miscellaneous':<40s} = {result['cd_misc']:.6f}")
     print(f"  {'TOTAL CD0':<40s} = {result['cd0_total']:.6f}")
 
-    # Quick check vs equivalent Cfe method — Raymer Eq. 12.23
     cd0_check = cd0_equivalent_cfe(S_wet_total, S_ref, "civil_transport")
     print(f"\n  Cross-check: Cfe method (Eq. 12.23)    = {cd0_check:.6f}")
 
-    # --- Drag due to lift ---
+    # =========================================================================
+    #  4. DRAG DUE TO LIFT
+    # =========================================================================
+    e = oswald_e(AR_eff, sweep_le_deg)
+    K = k_factor(AR_eff, e)
+    K_les = k_factor_leading_edge_suction(AR_eff, CLa, S_suction)
+    e_from_les = 1.0 / (np.pi * AR_eff * K_les)
+
     print(f"\n--- DRAG DUE TO LIFT ---")
     print(f"  Oswald e (Eq. 12.48/49)    = {e:.4f}  (conservative)")
     print(f"  K (Oswald, Eq. 12.47)      = {K:.5f}")
     print(f"  K (LE suction, Eq. 12.57)  = {K_les:.5f}  (S = {S_suction})")
     print(f"  e equiv (LE suction)       = {e_from_les:.4f}  (more realistic)")
 
-    # --- Drag polar & L/D ---
+    # =========================================================================
+    #  5. DRAG POLAR & L/D
+    # =========================================================================
     cd0 = result["cd0_total"]
     polar_oswald = DragPolar(cd0, K)
     polar_les = DragPolar(cd0, K_les)
@@ -290,6 +231,7 @@ for variant_name, vdata in VARIANTS.items():
     ld_max, cl_ldmax = polar.ld_max()
     ld_max_oswald, _ = polar_oswald.ld_max()
 
+    q_cruise = dynamic_pressure(cruise_mach, cruise_alt)
     cl_cruise = polar.cl_for_cruise(W_cruise_approx, q_cruise, S_ref)
     ld_cruise = polar.ld(cl_cruise)
     cd_cruise = polar.cd(cl_cruise)
@@ -304,23 +246,37 @@ for variant_name, vdata in VARIANTS.items():
     print(f"    CD_cruise      = {cd_cruise:.6f}")
     print(f"    L/D_cruise     = {ld_cruise:.2f}")
 
-    # --- Maximum lift ---
+    # =========================================================================
+    #  6. MAXIMUM LIFT
+    # =========================================================================
+    cl_max = cl_max_clean(cl_max_airfoil, sweep_qc_rad)
+
+    cl_max_to = cl_max_flaps(cl_max, delta_cl_te * te_to_frac, s_flapped_ratio,
+                              sweep_hl_rad, delta_cl_max_le=0.0)
+
+    cl_max_land = cl_max_flaps(cl_max, delta_cl_te, s_flapped_ratio, sweep_hl_rad,
+                                delta_cl_max_le=0.9 * delta_cl_le * s_slat_ratio * np.cos(sweep_hl_rad))
+
     print(f"\n--- MAXIMUM LIFT ---")
     print(f"  CL_max (clean, Eq. 12.15)  = {cl_max:.3f}")
     print(f"  CL_max (takeoff flaps)     = {cl_max_to:.3f}")
     print(f"  CL_max (landing, full)     = {cl_max_land:.3f}")
 
-    # --- Drag divergence Mach ---
-    m_dd = mdd_wing(t_c_wing, sweep_qc_deg, cl_design=cl_cruise,
+    # =========================================================================
+    #  7. TRANSONIC
+    # =========================================================================
+    m_dd = mdd_wing(t_c_wing, ac["sweep_qc_deg"], cl_design=cl_cruise,
                      supercritical=True)
 
     print(f"\n--- TRANSONIC ---")
     print(f"  M_DD (Boeing, Eq. 12.46)   = {m_dd:.3f}")
     print(f"  M_cr (approx)              = {m_dd - 0.08:.3f}")
 
-    # --- Summary ---
+    # =========================================================================
+    #  SUMMARY
+    # =========================================================================
     print(f"\n{'='*65}")
-    print(f"  {variant_name.upper()} — VALUES FOR MISSION SIZING")
+    print(f"  {name} — VALUES FOR MISSION SIZING")
     print(f"{'='*65}")
     print(f"  CD0          = {cd0:.5f}")
     print(f"  e (Oswald)   = {e:.4f}  (conservative)")
@@ -335,3 +291,18 @@ for variant_name, vdata in VARIANTS.items():
     print(f"  M_DD         = {m_dd:.3f}")
     print(f"  CLa          = {CLa:.4f} /rad")
     print(f"{'='*65}")
+
+
+# =============================================================================
+#  MAIN — load aircraft data files and run analysis
+# =============================================================================
+if __name__ == "__main__":
+    from data.ZRJ70 import AIRCRAFT as ZRJ70
+    from data.ZRJ100 import AIRCRAFT as ZRJ100
+
+    print("=" * 65)
+    print("  REGIONAL JET AERODYNAMIC ANALYSIS (Raymer Ch.12 Methods)")
+    print("=" * 65)
+
+    for ac in [ZRJ70, ZRJ100]:
+        analyse(ac)
