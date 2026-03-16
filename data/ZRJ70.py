@@ -82,10 +82,10 @@ AIRCRAFT = {
     "S_suction": 0.90,            # typical for well-designed wing at design CL
 
     # --- High-lift devices ---
-    "delta_cl_te_factor": 1.6 * 1.25,   # double slotted flap, c'/c = 1.25
+    "delta_cl_te_factor": 1.6 * 1.25,   # double slotted flap, c'/c = 1.25 *** UPDATE *** verify c'/c from flap design
     "te_flap_takeoff_fraction": 0.70,    # *** UPDATE *** partial deflection for takeoff
     "s_flapped_ratio": 0.70,             # *** UPDATE *** ~70% of wing span has flaps — verify from planform
     "sweep_hl_deg": 20.0,                # *** UPDATE *** flap hinge line sweep — verify from planform
-    "delta_cl_le_factor": 0.4 * 1.10,   # slotted slat, c'/c = 1.10
+    "delta_cl_le_factor": 0.4 * 1.10,   # slotted slat, c'/c = 1.10 *** UPDATE *** verify c'/c from slat design
     "s_slat_ratio": 0.75,               # *** UPDATE *** ~75% of wing span has slats — verify from planform
 }
