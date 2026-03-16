@@ -78,7 +78,8 @@ def analyse(ac):
     V_cruise     = cruise_mach * atm["a"]
 
     cl_max_airfoil = ac["cl_max_airfoil"]
-    k_surface    = ac["k_surface"]
+    k_composite  = ac["k_composite"]
+    k_metal      = ac["k_metal"]
 
     Q_wing       = ac["Q_wing"]
     Q_fuse       = ac["Q_fuse"]
@@ -173,19 +174,19 @@ def analyse(ac):
     # =========================================================================
     components = [
         {"name": "Wing",       "s_wet": S_wet_wing,    "length": MAC,
-         "ff": FF_wing,  "Q": Q_wing,  "pct_laminar": lam_wing, "k": k_surface},
+         "ff": FF_wing,  "Q": Q_wing,  "pct_laminar": lam_wing, "k": k_composite},
         {"name": "Fuselage",   "s_wet": S_wet_fuse,    "length": fuse_length,
-         "ff": FF_fuse,  "Q": Q_fuse,  "pct_laminar": lam_fuse, "k": k_surface},
+         "ff": FF_fuse,  "Q": Q_fuse,  "pct_laminar": lam_fuse, "k": k_metal},
         {"name": "H-tail",     "s_wet": S_wet_htail,   "length": MAC_htail,
-         "ff": FF_htail, "Q": Q_htail, "pct_laminar": lam_tail, "k": k_surface},
+         "ff": FF_htail, "Q": Q_htail, "pct_laminar": lam_tail, "k": k_composite},
         {"name": "V-tail",     "s_wet": S_wet_vtail,   "length": MAC_vtail,
-         "ff": FF_vtail, "Q": Q_vtail, "pct_laminar": lam_tail, "k": k_surface},
+         "ff": FF_vtail, "Q": Q_vtail, "pct_laminar": lam_tail, "k": k_composite},
     ]
     for i in range(n_nacelles):
         side = "L" if i == 0 else "R"
         components.append(
             {"name": f"Nacelle {side}", "s_wet": S_wet_nac, "length": nacelle_length,
-             "ff": FF_nac, "Q": Q_nac, "pct_laminar": lam_nac, "k": k_surface})
+             "ff": FF_nac, "Q": Q_nac, "pct_laminar": lam_nac, "k": k_composite})
 
     result = cd0_component_buildup(
         components, S_ref, cruise_mach, cruise_alt,

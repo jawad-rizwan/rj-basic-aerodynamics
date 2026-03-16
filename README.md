@@ -1,13 +1,13 @@
 # rj-basic-aerodynamics
 
-Conceptual-level aerodynamic analysis for a high-wing regional jet design
-(AN-148/AVRO RJ class), implementing the methods from **Raymer, _Aircraft
-Design: A Conceptual Approach_ (7th Ed.), Chapter 12 — Aerodynamics**.
+Conceptual-level aerodynamic analysis for a high-wing regional jet design,
+implementing the methods from **Raymer, _Aircraft Design: A Conceptual
+Approach_ (7th Ed.), Chapter 12 — Aerodynamics**.
 
 The script computes CD0, Oswald span efficiency, induced-drag K factor,
 lift-curve slope, CLmax, and drag-divergence Mach number using the component
-buildup method. Both 76-seat and 100-seat fuselage variants are analysed
-(shared wing/tail/nacelle geometry, different fuselage lengths).
+buildup method. Both ZRJ70 (76-seat) and ZRJ100 (100-seat) variants are
+analysed (shared wing/tail/nacelle geometry, different fuselage lengths).
 
 Outputs are intended to feed into Chapter 6 refined mission sizing
 (see [`rj-mission-sizing`](https://github.com/jawad-rizwan/rj-mission-sizing)).
@@ -25,6 +25,9 @@ rj-basic-aerodynamics/
 │   ├── induced_drag.py      # Oswald e, K factor, LE suction (Eq. 12.47–12.57)
 │   ├── wave_drag.py         # MDD, wave drag (Eq. 12.42–12.46)
 │   └── drag_polar.py        # DragPolar class (Eq. 12.4–12.5)
+├── data/                    # Aircraft configuration data
+│   ├── ZRJ70.py             # 76-seat variant geometry & parameters
+│   └── ZRJ100.py            # 100-seat variant geometry & parameters
 ├── examples/
 │   └── regional_jet.py      # Full analysis for both fuselage variants
 └── requirements.txt
@@ -39,12 +42,12 @@ python3 examples/regional_jet.py
 
 ## Aircraft Configuration
 
-- **Wing**: S_ref = 792.47 ft², AR = 7.8, taper = 0.33, NASA SC(3)-0712B airfoil (12% t/c), 26° LE sweep, no winglets (anhedral tips)
-- **Fuselage**: 9.83 ft diameter, 96.44 ft (76-seat) / 108.2 ft (100-seat)
-- **Horizontal tail**: T-tail, S = 190.58 ft², NASA SC(2)-0012 airfoil
-- **Vertical tail**: S = 146.35 ft² (enhanced), NASA SC(2)-0012 airfoil
-- **Nacelles**: 13.46 ft length, 6.17 ft diameter, x2
-- **Cruise**: Mach 0.78 at 41,000 ft
+- **Wing**: S_ref = 1016.58 ft², AR = 7.8, taper = 0.33, supercritical airfoils (root NASA SC(2)-0714, mid SC(3)-0712, tip SC(2)-0710), 26° LE sweep, no winglets (anhedral tips), composite construction
+- **Fuselage**: 10.5 ft diameter, 96.7 ft (ZRJ70) / 110.2 ft (ZRJ100), aluminium
+- **Horizontal tail**: T-tail, S = 276.92 ft², NASA SC(2)-0010 airfoil, composite
+- **Vertical tail**: S = 200.8 ft², NASA SC(2)-0012 airfoil, composite
+- **Nacelles**: 13.46 ft length, 6.17 ft diameter, x2, composite
+- **Cruise**: Mach 0.78 at 35,000 ft
 
 ## Module Reference
 
@@ -64,20 +67,20 @@ includes the Raymer equation number in a comment.
 
 ## Sample Output
 
-| Parameter | 76-seat | 100-seat | Notes |
-|-----------|---------|----------|-------|
-| CD0 | 0.02113 | 0.02185 | Component buildup (Eq. 12.24) |
+| Parameter | ZRJ70 | ZRJ100 | Notes |
+|-----------|-------|--------|-------|
+| CD0 | 0.01843 | 0.01910 | Component buildup (Eq. 12.24) |
 | e (Oswald) | 0.639 | 0.639 | Eq. 12.48/49 — conservative |
 | e (LE suction) | 0.753 | 0.753 | Eq. 12.57 — recommended |
 | K (LE suction) | 0.0542 | 0.0542 | Recommended for sizing |
-| (L/D)_max | 14.78 | 14.53 | With LE suction K |
-| L/D cruise | 14.40 | 14.39 | At cruise Mach / altitude |
-| CL cruise | 0.4974 | 0.5507 | W_cruise / (q * S_ref) |
+| (L/D)_max | 15.82 | 15.54 | With LE suction K |
+| L/D cruise | 13.74 | 13.80 | M 0.78 at 35,000 ft |
+| CL cruise | 0.3387 | 0.3608 | W_cruise / (q * S_ref) |
 | CLa | 5.73 /rad | 5.73 /rad | At cruise Mach |
-| CLmax clean | 1.841 | 1.841 | Eq. 12.15 |
-| CLmax takeoff | 2.514 | 2.514 | Fowler flaps, no slats |
-| CLmax landing | 3.082 | 3.082 | Fowler flaps + slats |
-| MDD | 0.826 | 0.819 | Korn equation (Eq. 12.46) |
+| CLmax clean | 1.161 | 1.161 | Eq. 12.15 |
+| CLmax takeoff | 1.990 | 1.990 | Double slotted flaps, no slats |
+| CLmax landing | 2.624 | 2.624 | Double slotted flaps + slats |
+| MDD | 0.843 | 0.840 | Korn equation (Eq. 12.46) |
 
 ## Notes
 
@@ -89,6 +92,9 @@ includes the Raymer equation number in a comment.
   (Eq. 12.5) polars via the optional `cl_min_drag` parameter.
 - All computations use Imperial units (ft, lbs, slugs, Rankine) to match
   Raymer's conventions.
+- Surface finish uses polished composite (k = 0.50e-5 ft) for wing, tail,
+  and nacelles, and production sheet metal (k = 1.33e-5 ft) for the
+  aluminium fuselage.
 
 ## Requirements
 

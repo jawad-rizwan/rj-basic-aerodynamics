@@ -10,56 +10,57 @@ AIRCRAFT = {
     "description": "76-seat high-wing regional jet",
 
     # --- Wing (shared geometry) ---
-    "S_ref": 792.47,              # ft^2, wing reference area (trapezoidal)
+    "S_ref": 1016.58,             # ft^2, wing reference area (trapezoidal)
     "AR": 7.8,                    # aspect ratio
-    "b": 78.62,                   # ft, wing span (from spreadsheet)
-    "MAC": 10.93,                 # ft, mean aerodynamic chord (from spreadsheet)
-    "taper": 0.33,                # taper ratio (from AVRO RJ)
-    "t_c_wing": 0.12,             # thickness-to-chord ratio (NASA SC(3)-0712B, 12%)
+    "b": 89.05,                   # ft, wing span
+    "MAC": 12.38,                 # ft, mean aerodynamic chord
+    "taper": 0.33,                # taper ratio
+    "t_c_wing": 0.123,            # chord-weighted avg t/c (root 0.14, mid 0.12, tip 0.10)
     "x_c_max_wing": 0.37,         # chordwise location of max thickness
     "sweep_qc_deg": 22.9,         # quarter-chord sweep (deg)
     "sweep_le_deg": 26.0,         # leading-edge sweep (deg)
     "sweep_mt_deg": 21.4,         # max-thickness line sweep (deg)
-    "S_exposed": 649.7,           # ft^2, exposed planform (minus fuselage cover)
+    "S_exposed": 843.5,           # ft^2, exposed planform (minus fuselage cover)
     "winglet_h": 0.0,             # ft, no winglets (anhedral tips)
 
     # --- Fuselage ---
-    "fuse_d": 9.83,               # ft, max fuselage diameter
-    "fuse_length": 96.44,         # ft, fuselage length
+    "fuse_d": 10.5,               # ft, max fuselage diameter
+    "fuse_length": 96.7,          # ft, fuselage length
 
     # --- Weights ---
-    "MTOW": 73723.0,              # lbs
+    "MTOW": 85888.0,              # lbs
 
     # --- Horizontal tail (T-tail) ---
-    "S_htail": 190.58,            # ft^2, htail reference area
-    "S_htail_exposed": 174.8,     # ft^2 (exposed span 25.76 ft, minus structural box)
-    "MAC_htail": 7.38,            # ft
-    "t_c_htail": 0.12,            # *** UPDATE *** (airfoil TBD, using 12% placeholder)
-    "x_c_max_htail": 0.37,        # *** UPDATE *** (airfoil TBD, using 37% placeholder)
-    "sweep_mt_htail_deg": 23.8,   # *** UPDATE *** max-thickness sweep — recompute when airfoil chosen
+    "S_htail": 276.92,            # ft^2, htail reference area
+    "S_htail_exposed": 260.2,     # ft^2, *** UPDATE *** estimate — verify structural box width
+    "MAC_htail": 8.90,            # ft
+    "t_c_htail": 0.10,            # NASA SC(2)-0010 airfoil
+    "x_c_max_htail": 0.37,        # chordwise location of max thickness
+    "sweep_mt_htail_deg": 23.7,   # max-thickness line sweep (deg)
 
-    # --- Vertical tail (enhanced area) ---
-    "S_vtail": 146.35,            # ft^2 (enhanced area)
-    "S_vtail_exposed": 124.1,     # ft^2 (exposed span 13.73 ft)
-    "MAC_vtail": 11.03,           # ft
-    "t_c_vtail": 0.12,            # *** UPDATE *** (airfoil TBD, using 12% placeholder)
-    "x_c_max_vtail": 0.37,        # *** UPDATE *** (airfoil TBD, using 37% placeholder)
-    "sweep_mt_vtail_deg": 38.5,   # *** UPDATE *** max-thickness sweep — recompute when airfoil chosen
+    # --- Vertical tail ---
+    "S_vtail": 200.8,             # ft^2
+    "S_vtail_exposed": 172.5,     # ft^2, *** UPDATE *** estimate — verify structural carrythrough
+    "MAC_vtail": 14.46,           # ft
+    "t_c_vtail": 0.12,            # NASA SC(2)-0012 airfoil
+    "x_c_max_vtail": 0.37,        # chordwise location of max thickness
+    "sweep_mt_vtail_deg": 31.8,   # max-thickness line sweep (deg)
 
     # --- Nacelles (x2) ---
-    "nacelle_length": 13.46,      # ft, per nacelle
-    "nacelle_d": 6.17,            # ft, diameter
+    "nacelle_length": 13.45833333,  # ft, per nacelle
+    "nacelle_d": 6.166666667,       # ft, diameter
     "n_nacelles": 2,
 
     # --- Flight condition ---
     "cruise_mach": 0.78,
-    "cruise_alt": 41000.0,        # ft
+    "cruise_alt": 35000.0,        # ft
 
     # --- Airfoil data ---
-    "cl_max_airfoil": 2.22,       # *** UPDATE *** 2D airfoil CLmax — verify from test data (typical SC ~1.6-1.8)
+    "cl_max_airfoil": 1.40,       # 2D cl_max (tip-limited, NASA SC(2)-0710 at Re ~9M)
 
     # --- Surface finish ---
-    "k_surface": 1.33e-5,         # ft, production sheet metal (Raymer Table 12.5)
+    "k_composite": 0.50e-5,       # ft, polished composite (Raymer Table 12.5) — wing, tail, nacelles
+    "k_metal": 1.33e-5,           # ft, production sheet metal (Raymer Table 12.5) — fuselage
 
     # --- Interference factors Q — Raymer Table 12.6 ---
     "Q_wing": 1.00,               # high wing, well-filleted (Raymer Table 12.6)
@@ -81,10 +82,10 @@ AIRCRAFT = {
     "S_suction": 0.90,            # typical for well-designed wing at design CL
 
     # --- High-lift devices ---
-    "delta_cl_te_factor": 1.3 * 1.25,   # Fowler flap, c'/c = 1.25
-    "te_flap_takeoff_fraction": 0.70,    # partial deflection for takeoff
-    "s_flapped_ratio": 0.70,             # ~70% of wing span has flaps
-    "sweep_hl_deg": 20.0,                # flap hinge line sweep
-    "delta_cl_le_factor": 0.4 * 1.10,   # slat, c'/c = 1.10
-    "s_slat_ratio": 0.75,
+    "delta_cl_te_factor": 1.6 * 1.25,   # double slotted flap, c'/c = 1.25
+    "te_flap_takeoff_fraction": 0.70,    # *** UPDATE *** partial deflection for takeoff
+    "s_flapped_ratio": 0.70,             # *** UPDATE *** ~70% of wing span has flaps — verify from planform
+    "sweep_hl_deg": 20.0,                # *** UPDATE *** flap hinge line sweep — verify from planform
+    "delta_cl_le_factor": 0.4 * 1.10,   # slotted slat, c'/c = 1.10
+    "s_slat_ratio": 0.75,               # *** UPDATE *** ~75% of wing span has slats — verify from planform
 }
