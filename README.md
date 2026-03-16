@@ -82,6 +82,47 @@ includes the Raymer equation number in a comment.
 | CLmax landing | 2.624 | 2.624 | Double slotted flaps + slats |
 | MDD | 0.843 | 0.840 | Korn equation (Eq. 12.46) |
 
+## Stability & Control Values
+
+Values marked with \* are estimates — update `alpha_0L_deg`, `cm_0_airfoil`,
+`cl_max_htail_airfoil`, and `cl_max_vtail_airfoil` in the data files with
+XFLR5 results for improved accuracy.
+
+### Wing
+
+| Parameter | ZRJ70 | ZRJ100 | Notes |
+|-----------|-------|--------|-------|
+| a (dCL/dα) | 5.7288 /rad | 5.7288 /rad | Eq. 12.6 at cruise Mach |
+| Cm_0_ac | −0.0618 \* | −0.0618 \* | 3D correction of 2D cm_0 |
+| CLmax (clean) | 1.161 | 1.161 | Eq. 12.15 |
+| α_CLmax | 9.6° \* | 9.6° \* | Depends on α_0L |
+| CL_cruise | 0.3387 | 0.3608 | W_cruise / (q × S_ref) |
+| α_CL_cruise | 1.39° \* | 1.61° \* | Depends on α_0L |
+
+### Horizontal Tail (AR = 3.94)
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| a_t (dCL/dα) | 4.0450 /rad | Eq. 12.6, symmetric SC(2)-0010 |
+| CLmax_tail | 0.808 \* | Needs cl_max from XFLR5 |
+| α_CLmax_tail | 11.4° \* | Symmetric airfoil (α_0L ≈ 0) |
+
+### Vertical Tail (AR = 1.00)
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| a_t (dCL/dα) | 1.2838 /rad | Eq. 12.6, symmetric SC(2)-0012 |
+| CLmax_tail | 0.796 \* | Needs cl_max from XFLR5 |
+| α_CLmax_tail | 35.5° \* | High due to very low AR |
+
+### Not Yet Computable
+
+The following require CG position, tail moment arms, and downwash gradient
+(dε/dα), which are beyond the scope of Raymer Ch. 12 aerodynamics:
+
+- dCm/dα (wing, htail, vtail contributions)
+- CL_cruise and α_cruise for tail surfaces (need trim analysis)
+
 ## Notes
 
 - The Oswald e from Eq. 12.48/12.49 is known to be conservative. Raymer

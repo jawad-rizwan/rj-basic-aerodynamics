@@ -274,6 +274,85 @@ def analyse(ac):
     print(f"  M_cr (approx)              = {m_dd - 0.08:.3f}")
 
     # =========================================================================
+    #  8. STABILITY & CONTROL VALUES
+    # =========================================================================
+    alpha_0L = ac["alpha_0L_deg"]
+    cm_0_airfoil = ac["cm_0_airfoil"]
+
+    # Wing angles of attack
+    alpha_cl_max = cl_max / (CLa * np.pi/180) + alpha_0L      # deg
+    alpha_cl_cruise = cl_cruise / (CLa * np.pi/180) + alpha_0L  # deg
+
+    # Wing Cm_0 about AC (3D correction for swept wing)
+    cos_qc = np.cos(sweep_qc_rad)
+    cm_0_ac = cm_0_airfoil * (AR * cos_qc**2) / (AR + 2*cos_qc)
+
+    # Horizontal tail: compute AR from taper, MAC, S
+    taper_ht = ac["taper_htail"]
+    S_htail = ac["S_htail"]
+    c_root_ht = MAC_htail / ((2.0/3.0) * (1 + taper_ht + taper_ht**2) / (1 + taper_ht))
+    b_ht = 2.0 * S_htail / (c_root_ht * (1 + taper_ht))
+    AR_htail = b_ht**2 / S_htail
+    s_exp_ratio_ht = S_htail_exposed / S_htail
+
+    # Htail sweep of quarter-chord (derive from max-thickness sweep)
+    sweep_qc_ht_rad = np.arctan(
+        np.tan(sweep_mt_htail_rad)
+        + (4.0/AR_htail) * (x_c_max_htail - 0.25) * (1 - taper_ht) / (1 + taper_ht)
+    )
+
+    CLa_htail = cl_alpha_subsonic(
+        A=AR_htail, mach=cruise_mach, sweep_max_t=sweep_mt_htail_rad,
+        eta=0.95, s_exposed_ratio=s_exp_ratio_ht, F=1.0,
+    )
+
+    cl_max_htail_airfoil = ac["cl_max_htail_airfoil"]
+    CLmax_htail = 0.9 * cl_max_htail_airfoil * np.cos(sweep_qc_ht_rad)
+    alpha_CLmax_htail = CLmax_htail / (CLa_htail * np.pi/180) + 0.0  # symmetric airfoil, alpha_0L ~ 0
+
+    # Vertical tail: AR given directly
+    AR_vtail = ac["AR_vtail"]
+    taper_vt = ac["taper_vtail"]
+    S_vtail = ac["S_vtail"]
+    s_exp_ratio_vt = S_vtail_exposed / S_vtail
+
+    sweep_qc_vt_rad = np.arctan(
+        np.tan(sweep_mt_vtail_rad)
+        + (4.0/AR_vtail) * (x_c_max_vtail - 0.25) * (1 - taper_vt) / (1 + taper_vt)
+    )
+
+    CLa_vtail = cl_alpha_subsonic(
+        A=AR_vtail, mach=cruise_mach, sweep_max_t=sweep_mt_vtail_rad,
+        eta=0.95, s_exposed_ratio=s_exp_ratio_vt, F=1.0,
+    )
+
+    cl_max_vtail_airfoil = ac["cl_max_vtail_airfoil"]
+    CLmax_vtail = 0.9 * cl_max_vtail_airfoil * np.cos(sweep_qc_vt_rad)
+    alpha_CLmax_vtail = CLmax_vtail / (CLa_vtail * np.pi/180) + 0.0  # symmetric airfoil
+
+    print(f"\n--- STABILITY & CONTROL VALUES ---")
+    print(f"  (Values marked * are estimates — see *** UPDATE *** in data files)")
+    print(f"\n  WING:")
+    print(f"    a (dCL/da)    = {CLa:.4f} /rad = {CLa*np.pi/180:.5f} /deg")
+    print(f"    Cm_0_ac       = {cm_0_ac:.4f} *")
+    print(f"    CLmax (clean) = {cl_max:.3f}")
+    print(f"    a_CLmax       = {alpha_cl_max:.1f} deg *")
+    print(f"    CL_cruise     = {cl_cruise:.4f}")
+    print(f"    a_CL_cruise   = {alpha_cl_cruise:.2f} deg *")
+    print(f"    alpha_0L      = {alpha_0L:.1f} deg *")
+    print(f"\n  HORIZONTAL TAIL (AR = {AR_htail:.2f}):")
+    print(f"    a_t (dCL/da)  = {CLa_htail:.4f} /rad = {CLa_htail*np.pi/180:.5f} /deg")
+    print(f"    CLmax_tail    = {CLmax_htail:.3f} *")
+    print(f"    a_CLmax_tail  = {alpha_CLmax_htail:.1f} deg *")
+    print(f"\n  VERTICAL TAIL (AR = {AR_vtail:.2f}):")
+    print(f"    a_t (dCL/da)  = {CLa_vtail:.4f} /rad = {CLa_vtail*np.pi/180:.5f} /deg")
+    print(f"    CLmax_tail    = {CLmax_vtail:.3f} *")
+    print(f"    a_CLmax_tail  = {alpha_CLmax_vtail:.1f} deg *")
+    print(f"\n  NOT COMPUTABLE (need CG position, tail arm, downwash):")
+    print(f"    dCm/da (wing, htail, vtail)")
+    print(f"    CL_cruise_tail, a_cruise_tail (need trim analysis)")
+
+    # =========================================================================
     #  SUMMARY
     # =========================================================================
     print(f"\n{'='*65}")

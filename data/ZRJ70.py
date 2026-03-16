@@ -36,7 +36,9 @@ AIRCRAFT = {
     "MAC_htail": 8.90,            # ft
     "t_c_htail": 0.10,            # NASA SC(2)-0010 airfoil
     "x_c_max_htail": 0.37,        # chordwise location of max thickness
+    "taper_htail": 0.4,            # htail taper ratio
     "sweep_mt_htail_deg": 23.7,   # max-thickness line sweep (deg)
+    "cl_max_htail_airfoil": 1.0,  # *** UPDATE *** 2D cl_max for SC(2)-0010 — verify from XFLR5 at tail Re
 
     # --- Vertical tail ---
     "S_vtail": 200.8,             # ft^2
@@ -44,7 +46,10 @@ AIRCRAFT = {
     "MAC_vtail": 14.46,           # ft
     "t_c_vtail": 0.12,            # NASA SC(2)-0012 airfoil
     "x_c_max_vtail": 0.37,        # chordwise location of max thickness
+    "taper_vtail": 0.6,            # vtail taper ratio
+    "AR_vtail": 1.0,               # vtail aspect ratio
     "sweep_mt_vtail_deg": 31.8,   # max-thickness line sweep (deg)
+    "cl_max_vtail_airfoil": 1.1,  # *** UPDATE *** 2D cl_max for SC(2)-0012 — verify from XFLR5 at tail Re
 
     # --- Nacelles (x2) ---
     "nacelle_length": 13.45833333,  # ft, per nacelle
@@ -57,6 +62,8 @@ AIRCRAFT = {
 
     # --- Airfoil data ---
     "cl_max_airfoil": 1.40,       # 2D cl_max (tip-limited, NASA SC(2)-0710 at Re ~9M)
+    "alpha_0L_deg": -2.0,         # deg, *** UPDATE *** zero-lift AoA — estimate for supercritical, verify from XFLR5
+    "cm_0_airfoil": -0.09,        # *** UPDATE *** 2D Cm_0 at aero center — estimate for supercritical, verify from XFLR5
 
     # --- Surface finish ---
     "k_composite": 0.50e-5,       # ft, polished composite (Raymer Table 12.5) — wing, tail, nacelles
