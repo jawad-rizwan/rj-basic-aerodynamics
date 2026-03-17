@@ -2,8 +2,8 @@
 Regional Jet Aerodynamic Analysis — high-wing regional jet
 Using Raymer Chapter 12 methods.
 
-This script computes CD0, Oswald e, K, CLmax, L/D, and MDD
-for a high-wing regional jet using the component buildup method.
+This script computes CD0, Oswald e, K, CLmax, L/D, MDD, and required
+cruise thrust for a high-wing regional jet using the component buildup method.
 
 Aircraft data is loaded from dedicated files in the data/ directory:
   - data/ZRJ70.py   (76-seat variant)
@@ -246,6 +246,18 @@ def analyse(ac):
     print(f"    CL_cruise      = {cl_cruise:.4f}  (W={W_cruise_approx:.0f} lbs)")
     print(f"    CD_cruise      = {cd_cruise:.6f}")
     print(f"    L/D_cruise     = {ld_cruise:.2f}")
+
+    # --- Required thrust for level unaccelerated cruise ---
+    D_cruise = q_cruise * S_ref * cd_cruise          # lbs
+    T_required = D_cruise                             # T = D in steady cruise
+    T_per_engine = T_required / n_nacelles            # lbs per engine
+    T_over_W = T_required / W_cruise_approx
+
+    print(f"\n  Cruise thrust required (T = D):")
+    print(f"    D_cruise       = {D_cruise:.0f} lbs")
+    print(f"    T_required     = {T_required:.0f} lbs  (total)")
+    print(f"    T per engine   = {T_per_engine:.0f} lbs  (x{n_nacelles})")
+    print(f"    T/W_cruise     = {T_over_W:.4f}")
 
     # =========================================================================
     #  6. MAXIMUM LIFT

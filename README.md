@@ -5,8 +5,8 @@ implementing the methods from **Raymer, _Aircraft Design: A Conceptual
 Approach_ (7th Ed.), Chapter 12 — Aerodynamics**.
 
 The script computes CD0, Oswald span efficiency, induced-drag K factor,
-lift-curve slope, CLmax, and drag-divergence Mach number using the component
-buildup method. Both ZRJ70 (76-seat) and ZRJ100 (100-seat) variants are
+lift-curve slope, CLmax, drag-divergence Mach number, and required cruise
+thrust using the component buildup method. Both ZRJ70 (76-seat) and ZRJ100 (100-seat) variants are
 analysed (shared wing/tail/nacelle geometry, different fuselage lengths).
 
 Outputs are intended to feed into Chapter 6 refined mission sizing
@@ -81,6 +81,9 @@ includes the Raymer equation number in a comment.
 | CLmax takeoff | 1.990 | 1.990 | Double slotted flaps, no slats |
 | CLmax landing | 2.624 | 2.624 | Double slotted flaps + slats |
 | MDD | 0.843 | 0.840 | Korn equation (Eq. 12.46) |
+| T_required | 5,313 lbs | 5,637 lbs | Total cruise thrust (T = D) |
+| T per engine | 2,657 lbs | 2,819 lbs | x2 engines |
+| T/W_cruise | 0.0728 | 0.0725 | Thrust-to-weight at cruise |
 
 ## Stability & Control Values
 
