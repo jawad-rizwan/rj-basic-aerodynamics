@@ -21,7 +21,7 @@ AIRCRAFT = {
     "sweep_le_deg": 26.0,         # leading-edge sweep (deg)
     "sweep_mt_deg": 21.4,         # max-thickness line sweep (deg)
     "S_exposed": 843.5,           # ft^2, exposed planform (minus fuselage cover)
-    "winglet_h": 0.0,             # ft, no winglets (anhedral tips)
+    "winglet_h": 6.9741,           # ft, scimitar winglet (5.67 upper + 1.30 lower)
 
     # --- Fuselage ---
     "fuse_d": 10.5,               # ft, max fuselage diameter

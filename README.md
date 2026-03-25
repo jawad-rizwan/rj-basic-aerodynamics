@@ -42,7 +42,7 @@ python3 examples/regional_jet.py
 
 ## Aircraft Configuration
 
-- **Wing**: S_ref = 1016.58 ft², AR = 7.8, taper = 0.33, supercritical airfoils (root NASA SC(2)-0714, mid SC(3)-0712, tip SC(2)-0710), 26° LE sweep, no winglets (anhedral tips), composite construction
+- **Wing**: S_ref = 1016.58 ft², AR = 7.8 (effective 9.07 with winglets), taper = 0.33, supercritical airfoils (root NASA SC(2)-0714, mid SC(3)-0712, tip SC(2)-0710), 26° LE sweep, scimitar winglets (5.67 ft upper + 1.30 ft lower = 6.97 ft total), composite construction
 - **Fuselage**: 10.5 ft diameter, 96.7 ft (ZRJ70) / 110.2 ft (ZRJ100), aluminium
 - **Horizontal tail**: T-tail, S = 276.92 ft², NASA SC(2)-0010 airfoil, composite
 - **Vertical tail**: S = 200.8 ft², NASA SC(2)-0012 airfoil, composite
@@ -70,20 +70,20 @@ includes the Raymer equation number in a comment.
 | Parameter | ZRJ70 | ZRJ100 | Notes |
 |-----------|-------|--------|-------|
 | CD0 | 0.01843 | 0.01910 | Component buildup (Eq. 12.24) |
-| e (Oswald) | 0.639 | 0.639 | Eq. 12.48/49 — conservative |
-| e (LE suction) | 0.753 | 0.753 | Eq. 12.57 — recommended |
-| K (LE suction) | 0.0542 | 0.0542 | Recommended for sizing |
-| (L/D)_max | 15.82 | 15.54 | With LE suction K |
-| L/D cruise | 13.27 | 13.56 | M 0.78 at 35,000 ft |
+| e (Oswald) | 0.557 | 0.557 | Eq. 12.48/49 — conservative |
+| e (LE suction) | 0.727 | 0.727 | Eq. 12.57 — recommended |
+| K (LE suction) | 0.0483 | 0.0483 | Recommended for sizing |
+| (L/D)_max | 16.76 | 16.46 | With LE suction K |
+| L/D cruise | 13.60 | 13.94 | M 0.78 at 35,000 ft |
 | CL cruise | 0.3166 | 0.3477 | W_cruise / (q * S_ref) |
-| CLa | 5.73 /rad | 5.73 /rad | At cruise Mach |
+| CLa | 5.99 /rad | 5.99 /rad | At cruise Mach |
 | CLmax clean | 1.161 | 1.161 | Eq. 12.15 |
 | CLmax takeoff | 1.990 | 1.990 | Double slotted flaps, no slats |
 | CLmax landing | 2.624 | 2.624 | Double slotted flaps + slats |
-| MDD | 0.843 | 0.840 | Korn equation (Eq. 12.46) |
-| T_required | 5,145 lbs | 5,529 lbs | Total cruise thrust (T = D) |
-| T per engine | 2,572 lbs | 2,765 lbs | x2 engines |
-| T/W_cruise | 0.0754 | 0.0738 | Thrust-to-weight at cruise |
+| MDD | 0.846 | 0.842 | Korn equation (Eq. 12.46) |
+| T_required | 5,017 lbs | 5,376 lbs | Total cruise thrust (T = D) |
+| T per engine | 2,509 lbs | 2,688 lbs | x2 engines |
+| T/W_cruise | 0.0735 | 0.0717 | Thrust-to-weight at cruise |
 
 ## Stability & Control Values
 
@@ -95,12 +95,12 @@ XFLR5 results for improved accuracy.
 
 | Parameter | ZRJ70 | ZRJ100 | Notes |
 |-----------|-------|--------|-------|
-| a (dCL/dα) | 5.7288 /rad | 5.7288 /rad | Eq. 12.6 at cruise Mach |
+| a (dCL/dα) | 5.9874 /rad | 5.9874 /rad | Eq. 12.6 at cruise Mach |
 | Cm_0_ac | −0.0618 \* | −0.0618 \* | 3D correction of 2D cm_0 |
 | CLmax (clean) | 1.161 | 1.161 | Eq. 12.15 |
-| α_CLmax | 9.6° \* | 9.6° \* | Depends on α_0L |
+| α_CLmax | 9.1° \* | 9.1° \* | Depends on α_0L |
 | CL_cruise | 0.3166 | 0.3477 | W_cruise / (q × S_ref) |
-| α_CL_cruise | 1.17° \* | 1.48° \* | Depends on α_0L |
+| α_CL_cruise | 1.03° \* | 1.33° \* | Depends on α_0L |
 
 ### Horizontal Tail (AR = 3.94)
 
