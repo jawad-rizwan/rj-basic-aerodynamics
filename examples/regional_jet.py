@@ -54,7 +54,7 @@ def analyse(ac):
     fuse_d       = ac["fuse_d"]
     fuse_length  = ac["fuse_length"]
     MTOW         = ac["MTOW"]
-    W_cruise_approx = 0.85 * MTOW
+    W_cruise_approx = 0.92 * MTOW
 
     S_htail_exposed = ac["S_htail_exposed"]
     MAC_htail    = ac["MAC_htail"]

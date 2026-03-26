@@ -56,7 +56,7 @@ for vname, ac in VARIANTS.items():
     fuse_d       = ac["fuse_d"]
     fuse_length  = ac["fuse_length"]
     MTOW         = ac["MTOW"]
-    W_cruise     = 0.85 * MTOW
+    W_cruise     = 0.92 * MTOW
     cruise_mach  = ac["cruise_mach"]
     cruise_alt   = ac["cruise_alt"]
     k_composite  = ac["k_composite"]

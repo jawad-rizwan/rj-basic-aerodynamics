@@ -50,7 +50,7 @@ winglet_h    = ac["winglet_h"]
 fuse_d       = ac["fuse_d"]
 fuse_length  = ac["fuse_length"]
 MTOW         = ac["MTOW"]
-W_cruise     = 0.85 * MTOW
+W_cruise     = 0.92 * MTOW
 
 S_htail_exposed = ac["S_htail_exposed"]
 MAC_htail       = ac["MAC_htail"]
