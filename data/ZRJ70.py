@@ -28,7 +28,7 @@ AIRCRAFT = {
     "fuse_length": 96.7,          # ft, fuselage length
 
     # --- Weights ---
-    "MTOW": 85888.0,              # lbs
+    "MTOW": 88635.0,              # lbs
 
     # --- Horizontal tail (T-tail) ---
     "S_htail": 276.92,            # ft^2, htail reference area
