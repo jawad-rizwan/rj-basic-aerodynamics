@@ -67,6 +67,9 @@ sweep_mt_vtail_rad = np.radians(ac["sweep_mt_vtail_deg"])
 nacelle_length = ac["nacelle_length"]
 nacelle_d      = ac["nacelle_d"]
 n_nacelles     = ac["n_nacelles"]
+fairing_s_wet  = ac.get("fairing_s_wet_delta", 0.0)
+fairing_length = ac.get("fairing_length", 0.0)
+fairing_d_eq   = ac.get("fairing_d_eq", 0.0)
 
 cruise_mach  = ac["cruise_mach"]
 
@@ -78,11 +81,13 @@ Q_fuse   = ac["Q_fuse"]
 Q_htail  = ac["Q_htail"]
 Q_vtail  = ac["Q_vtail"]
 Q_nac    = ac["Q_nac"]
+Q_fairing = ac.get("Q_fairing", 1.0)
 
 lam_wing = ac["lam_wing"]
 lam_fuse = ac["lam_fuse"]
 lam_tail = ac["lam_tail"]
 lam_nac  = ac["lam_nac"]
+lam_fairing = ac.get("lam_fairing", 0.0)
 leak_pct = ac["leak_pct"]
 S_suction = ac["S_suction"]
 
@@ -108,6 +113,7 @@ FF_fuse  = ff_fuselage(fuse_length, fuse_d)
 FF_htail = ff_tail_with_hinge(x_c_max_htail, t_c_htail, cruise_mach, sweep_mt_htail_rad)
 FF_vtail = ff_tail_with_hinge(x_c_max_vtail, t_c_vtail, cruise_mach, sweep_mt_vtail_rad)
 FF_nac   = ff_nacelle(nacelle_length, nacelle_d)
+FF_fairing = ff_nacelle(fairing_length, fairing_d_eq) if fairing_s_wet > 0.0 else None
 
 
 # ── Altitude sweep ───────────────────────────────────────────────────────
@@ -143,6 +149,11 @@ for idx, alt in enumerate(altitudes):
         components.append(
             {"name": f"Nacelle {side}", "s_wet": S_wet_nac, "length": nacelle_length,
              "ff": FF_nac, "Q": Q_nac, "pct_laminar": lam_nac, "k": k_composite})
+    if fairing_s_wet > 0.0:
+        components.append(
+            {"name": "Fairing", "s_wet": fairing_s_wet, "length": fairing_length,
+             "ff": FF_fairing, "Q": Q_fairing, "pct_laminar": lam_fairing,
+             "k": ac.get("k_fairing", k_metal)})
 
     result = cd0_component_buildup(
         components, S_ref, cruise_mach, float(alt),

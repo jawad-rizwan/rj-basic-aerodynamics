@@ -71,6 +71,9 @@ def analyse(ac):
     nacelle_length = ac["nacelle_length"]
     nacelle_d    = ac["nacelle_d"]
     n_nacelles   = ac["n_nacelles"]
+    fairing_s_wet = ac.get("fairing_s_wet_delta", 0.0)
+    fairing_length = ac.get("fairing_length", 0.0)
+    fairing_d_eq = ac.get("fairing_d_eq", 0.0)
 
     cruise_mach  = ac["cruise_mach"]
     cruise_alt   = ac["cruise_alt"]
@@ -86,13 +89,16 @@ def analyse(ac):
     Q_htail      = ac["Q_htail"]
     Q_vtail      = ac["Q_vtail"]
     Q_nac        = ac["Q_nac"]
+    Q_fairing    = ac.get("Q_fairing", 1.0)
 
     lam_wing     = ac["lam_wing"]
     lam_fuse     = ac["lam_fuse"]
     lam_tail     = ac["lam_tail"]
     lam_nac      = ac["lam_nac"]
+    lam_fairing  = ac.get("lam_fairing", 0.0)
     leak_pct     = ac["leak_pct"]
     S_suction    = ac["S_suction"]
+    k_fairing    = ac.get("k_fairing", k_metal)
 
     delta_cl_te  = ac["delta_cl_te_factor"]
     te_to_frac   = ac["te_flap_takeoff_fraction"]
@@ -152,6 +158,7 @@ def analyse(ac):
     FF_htail = ff_tail_with_hinge(x_c_max_htail, t_c_htail, cruise_mach, sweep_mt_htail_rad)
     FF_vtail = ff_tail_with_hinge(x_c_max_vtail, t_c_vtail, cruise_mach, sweep_mt_vtail_rad)
     FF_nac   = ff_nacelle(nacelle_length, nacelle_d)
+    FF_fairing = ff_nacelle(fairing_length, fairing_d_eq) if fairing_s_wet > 0.0 else None
 
     print(f"\n--- WETTED AREAS ---")
     print(f"  Wing          = {S_wet_wing:.0f} ft^2")
@@ -159,6 +166,9 @@ def analyse(ac):
     print(f"  H-tail        = {S_wet_htail:.0f} ft^2")
     print(f"  V-tail        = {S_wet_vtail:.0f} ft^2")
     print(f"  Nacelles (x{n_nacelles}) = {n_nacelles * S_wet_nac:.0f} ft^2")
+    if fairing_s_wet > 0.0:
+        print(f"  Belly fairing = {fairing_s_wet:.0f} ft^2")
+        S_wet_total += fairing_s_wet
     print(f"  TOTAL         = {S_wet_total:.0f} ft^2")
     print(f"  S_wet / S_ref = {S_wet_total / S_ref:.2f}")
 
@@ -168,6 +178,8 @@ def analyse(ac):
     print(f"  H-tail (Eq. 12.30+)  = {FF_htail:.4f}")
     print(f"  V-tail (Eq. 12.30+)  = {FF_vtail:.4f}")
     print(f"  Nacelle (Eq. 12.32)  = {FF_nac:.4f}")
+    if FF_fairing is not None:
+        print(f"  Fairing (Eq. 12.32)  = {FF_fairing:.4f}")
 
     # =========================================================================
     #  3. CD0 COMPONENT BUILDUP (Eq. 12.24)
@@ -187,6 +199,10 @@ def analyse(ac):
         components.append(
             {"name": f"Nacelle {side}", "s_wet": S_wet_nac, "length": nacelle_length,
              "ff": FF_nac, "Q": Q_nac, "pct_laminar": lam_nac, "k": k_composite})
+    if fairing_s_wet > 0.0:
+        components.append(
+            {"name": "Fairing", "s_wet": fairing_s_wet, "length": fairing_length,
+             "ff": FF_fairing, "Q": Q_fairing, "pct_laminar": lam_fairing, "k": k_fairing})
 
     result = cd0_component_buildup(
         components, S_ref, cruise_mach, cruise_alt,

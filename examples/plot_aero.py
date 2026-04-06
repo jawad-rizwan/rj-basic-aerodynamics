@@ -80,16 +80,21 @@ for vname, ac in VARIANTS.items():
     nacelle_length = ac["nacelle_length"]
     nacelle_d    = ac["nacelle_d"]
     n_nacelles   = ac["n_nacelles"]
+    fairing_s_wet = ac.get("fairing_s_wet_delta", 0.0)
+    fairing_length = ac.get("fairing_length", 0.0)
+    fairing_d_eq = ac.get("fairing_d_eq", 0.0)
 
     Q_wing   = ac["Q_wing"]
     Q_fuse   = ac["Q_fuse"]
     Q_htail  = ac["Q_htail"]
     Q_vtail  = ac["Q_vtail"]
     Q_nac    = ac["Q_nac"]
+    Q_fairing = ac.get("Q_fairing", 1.0)
     lam_wing = ac["lam_wing"]
     lam_fuse = ac["lam_fuse"]
     lam_tail = ac["lam_tail"]
     lam_nac  = ac["lam_nac"]
+    lam_fairing = ac.get("lam_fairing", 0.0)
 
     delta_cl_te = ac["delta_cl_te_factor"]
     te_to_frac  = ac["te_flap_takeoff_fraction"]
@@ -120,6 +125,7 @@ for vname, ac in VARIANTS.items():
     FF_htail = ff_tail_with_hinge(x_c_max_htail, t_c_htail, cruise_mach, sweep_mt_htail_rad)
     FF_vtail = ff_tail_with_hinge(x_c_max_vtail, t_c_vtail, cruise_mach, sweep_mt_vtail_rad)
     FF_nac   = ff_nacelle(nacelle_length, nacelle_d)
+    FF_fairing = ff_nacelle(fairing_length, fairing_d_eq) if fairing_s_wet > 0.0 else None
 
     e_oswald = oswald_e(AR_eff, sweep_le_deg)
     K_oswald = k_factor(AR_eff, e_oswald)
@@ -147,6 +153,12 @@ for vname, ac in VARIANTS.items():
         {"name": "Nacelle R", "s_wet": S_wet_nac,    "length": nacelle_length,
          "ff": FF_nac,  "Q": Q_nac,  "pct_laminar": lam_nac,  "k": k_composite},
     ]
+    if fairing_s_wet > 0.0:
+        components.append(
+            {"name": "Fairing", "s_wet": fairing_s_wet, "length": fairing_length,
+             "ff": FF_fairing, "Q": Q_fairing, "pct_laminar": lam_fairing,
+             "k": ac.get("k_fairing", k_metal)},
+        )
 
     result = cd0_component_buildup(components, S_ref, cruise_mach, cruise_alt,
                                     cd_misc=0.0, leak_pct=leak_pct)
@@ -164,11 +176,15 @@ for vname, ac in VARIANTS.items():
         key = c["name"]
         if key.startswith("Nacelle"):
             comp_cd0["Nacelles"] = comp_cd0.get("Nacelles", 0) + c["CD0"]
+        elif key == "Fairing":
+            comp_cd0["Fairing"] = c["CD0"]
         else:
             comp_cd0[key] = c["CD0"]
     comp_cd0["Leak + Misc"] = result["cd_leak"] + result["cd_misc"]
 
     S_wet_total = S_wet_wing + S_wet_fuse + S_wet_htail + S_wet_vtail + n_nacelles * S_wet_nac
+    if fairing_s_wet > 0.0:
+        S_wet_total += fairing_s_wet
 
     variant_data[vname] = {
         "cd0": cd0, "polar": polar, "K": K_les, "e": e_les,
@@ -255,8 +271,8 @@ fig2.tight_layout()
 #  FIGURE 3 — CD0 Component Breakdown  (stacked bar)
 # ═══════════════════════════════════════════════════════════════════════
 fig3, ax3 = plt.subplots(figsize=(8, 5))
-comp_names = ["Wing", "Fuselage", "H-tail", "V-tail", "Nacelles", "Leak + Misc"]
-comp_colors = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#94a3b8"]
+comp_names = ["Wing", "Fuselage", "H-tail", "V-tail", "Nacelles", "Fairing", "Leak + Misc"]
+comp_colors = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#0f766e", "#94a3b8"]
 x_pos = np.arange(len(VARIANTS))
 bar_w = 0.5
 

@@ -56,6 +56,14 @@ AIRCRAFT = {
     "nacelle_d": 6.166666667,       # ft, diameter
     "n_nacelles": 2,
 
+    # --- Belly fairing (landing gear fairing) ---
+    "fairing_s_wet_delta": 37.412,  # ft^2, incremental wetted area vs no-fairing baseline
+    "fairing_length": 20.0,         # ft, 240 in
+    "fairing_d_eq": 3.008,          # ft, equivalent diameter from 108.55 in width x 12 in depth
+    "Q_fairing": 1.05,              # well-blended external fairing
+    "lam_fairing": 0.0,             # assume fully turbulent
+    "k_fairing": 1.33e-5,           # ft, production sheet metal
+
     # --- Flight condition ---
     "cruise_mach": 0.78,
     "cruise_alt": 35000.0,        # ft
