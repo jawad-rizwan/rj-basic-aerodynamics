@@ -69,12 +69,12 @@ includes the Raymer equation number in a comment.
 
 | Parameter | ZRJ70 | ZRJ100 | Notes |
 |-----------|-------|--------|-------|
-| CD0 | 0.01843 | 0.01910 | Component buildup (Eq. 12.24) |
+| CD0 | 0.01853 | 0.01920 | Component buildup incl. belly fairing (Eq. 12.24) |
 | e (Oswald) | 0.557 | 0.557 | Eq. 12.48/49 — conservative |
 | e (LE suction) | 0.727 | 0.727 | Eq. 12.57 — recommended |
 | K (LE suction) | 0.0483 | 0.0483 | Recommended for sizing |
-| (L/D)_max | 16.76 | 16.46 | With LE suction K |
-| L/D cruise | 14.64 | 14.88 | M 0.78 at 35,000 ft |
+| (L/D)_max | 16.71 | 16.42 | With LE suction K |
+| L/D cruise | 14.58 | 14.83 | M 0.78 at 35,000 ft |
 | CL cruise | 0.3628 | 0.3980 | W_cruise / (q * S_ref) |
 | CLa | 5.99 /rad | 5.99 /rad | At cruise Mach |
 | CLmax clean | 1.161 | 1.161 | Eq. 12.15 |
