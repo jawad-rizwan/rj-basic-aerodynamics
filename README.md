@@ -74,16 +74,16 @@ includes the Raymer equation number in a comment.
 | e (LE suction) | 0.727 | 0.727 | Eq. 12.57 — recommended |
 | K (LE suction) | 0.0483 | 0.0483 | Recommended for sizing |
 | (L/D)_max | 16.71 | 16.42 | With LE suction K |
-| L/D cruise | 14.58 | 14.83 | M 0.78 at 35,000 ft |
-| CL cruise | 0.3628 | 0.3980 | W_cruise / (q * S_ref) |
+| L/D cruise | 14.50 | 14.77 | M 0.78 at 35,000 ft |
+| CL cruise | 0.3587 | 0.3947 | W_cruise / (q * S_ref) |
 | CLa | 5.99 /rad | 5.99 /rad | At cruise Mach |
 | CLmax clean | 1.161 | 1.161 | Eq. 12.15 |
 | CLmax takeoff | 1.990 | 1.990 | Double slotted flaps, no slats |
 | CLmax landing | 2.624 | 2.624 | Double slotted flaps + slats |
-| MDD | 0.839 | 0.836 | Korn equation (Eq. 12.46) |
-| T_required | 5,344 lbs | 5,766 lbs | Total cruise thrust (T = D) |
-| T per engine | 2,672 lbs | 2,883 lbs | x2 engines |
-| T/W_cruise | 0.0683 | 0.0672 | Thrust-to-weight at cruise |
+| MDD | 0.840 | 0.836 | Korn equation (Eq. 12.46) |
+| T_required | 5,334 lbs | 5,760 lbs | Total cruise thrust (T = D) |
+| T per engine | 2,667 lbs | 2,880 lbs | x2 engines |
+| T/W_cruise | 0.0690 | 0.0677 | Thrust-to-weight at cruise |
 
 ## Stability & Control Values
 
@@ -99,8 +99,8 @@ XFLR5 results for improved accuracy.
 | Cm_0_ac | −0.0618 \* | −0.0618 \* | 3D correction of 2D cm_0 |
 | CLmax (clean) | 1.161 | 1.161 | Eq. 12.15 |
 | α_CLmax | 9.1° \* | 9.1° \* | Depends on α_0L |
-| CL_cruise | 0.3628 | 0.3980 | W_cruise / (q × S_ref) |
-| α_CL_cruise | 1.47° \* | 1.81° \* | Depends on α_0L |
+| CL_cruise | 0.3587 | 0.3947 | W_cruise / (q × S_ref) |
+| α_CL_cruise | 1.43° \* | 1.78° \* | Depends on α_0L |
 
 ### Horizontal Tail (AR = 3.94)
 
